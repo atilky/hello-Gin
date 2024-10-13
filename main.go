@@ -64,14 +64,19 @@ func main() {
 
 	rootPath := util.ProjectRootPath
 	r.Static("/static", rootPath+"/conf")
+	Init()
 
 	routers.AdminRouterInit(r)
 	routers.ApiRouterInit(r)
 	routers.RestfulDemo(r)
 	routers.HealthCheck(r)
 
-	r.Run(":80")
+	r.Run(":81")
 
+}
+
+func Init() {
+	util.InitLog("log")
 }
 
 func setSession(r *gin.Engine) {

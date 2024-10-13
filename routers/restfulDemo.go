@@ -1,6 +1,7 @@
 package routers
 
 import (
+	"gindemo02/util"
 	"github.com/gin-gonic/gin"
 )
 
@@ -13,6 +14,7 @@ func RestfulDemo(r *gin.Engine) {
 
 	// router demo
 	r.GET("/json1", func(c *gin.Context) {
+		util.LogRus.Info("Hello, JSON1")
 		c.JSON(200, map[string]interface{}{
 			"message": "Hello, JSON1",
 			"success": true,
