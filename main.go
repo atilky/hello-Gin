@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"gindemo02/models"
 	"gindemo02/routers"
 	"gindemo02/util"
 	"time"
@@ -22,6 +23,8 @@ func middleware(c *gin.Context) {
 }
 
 func main() {
+
+	Init()
 
 	r := gin.Default()
 	// r.GET("/",
@@ -64,7 +67,6 @@ func main() {
 
 	rootPath := util.ProjectRootPath
 	r.Static("/static", rootPath+"/conf")
-	Init()
 
 	routers.AdminRouterInit(r)
 	routers.ApiRouterInit(r)
@@ -77,6 +79,7 @@ func main() {
 
 func Init() {
 	util.InitLog("log")
+	models.InitMySql()
 }
 
 func setSession(r *gin.Engine) {
