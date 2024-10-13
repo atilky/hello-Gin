@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"gindemo02/routers"
+	"gindemo02/util"
 	"time"
 
 	"github.com/gin-contrib/sessions"
@@ -61,7 +62,8 @@ func main() {
 	// config.Section("").Key("app_name").SetValue("production")
 	// config.SaveTo("./conf/app.ini")
 
-	r.Static("/static", "./conf")
+	rootPath := util.ProjectRootPath
+	r.Static("/static", rootPath+"/conf")
 
 	routers.AdminRouterInit(r)
 	routers.ApiRouterInit(r)

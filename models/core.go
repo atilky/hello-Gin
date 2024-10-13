@@ -3,6 +3,7 @@ package models
 // https://gorm.io/zh_CN/docs/connecting_to_the_database.html
 import (
 	"fmt"
+	"gindemo02/util"
 	"os"
 
 	"gopkg.in/ini.v1"
@@ -15,7 +16,9 @@ var Err error
 
 func init() {
 
-	config, err := ini.Load("./conf/app.ini")
+	rootPath := util.ProjectRootPath
+
+	config, err := ini.Load(rootPath + "/conf/app.ini")
 	if err != nil {
 		fmt.Println("fail to read file: %v", err)
 		os.Exit(1)
