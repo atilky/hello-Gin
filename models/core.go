@@ -40,18 +40,101 @@ func InitMySql() {
 	password := config.Section("mysql").Key("password").String()
 	dbname := config.Section("mysql").Key("database").String()
 
+	createMySqlConnect(NewMySql(
+		WithIp(ip),
+		WithPort(port),
+		WitUser(user),
+		WitPassword(password),
+		WitDBName(dbname),
+	))
+
+}
+
+type MySqlInformation struct {
+	Ip       string
+	Port     string
+	User     string
+	Password string
+	DBName   string
+}
+
+func WithIp(ip string) Option {
+	if ip == "" {
+		return nil
+	}
+	return func(information *MySqlInformation) {
+		information.Ip = ip
+	}
+}
+
+func WithPort(port string) Option {
+	if port == "" {
+		return nil
+	}
+	return func(information *MySqlInformation) {
+		information.Port = port
+	}
+}
+
+func WitUser(user string) Option {
+	if user == "" {
+		return nil
+	}
+	return func(information *MySqlInformation) {
+		information.User = user
+	}
+}
+
+func WitPassword(password string) Option {
+	if password == "" {
+		return nil
+	}
+	return func(information *MySqlInformation) {
+		information.Password = password
+	}
+}
+
+func WitDBName(dbName string) Option {
+	if dbName == "" {
+		return nil
+	}
+	return func(information *MySqlInformation) {
+		information.DBName = dbName
+	}
+}
+
+type Option func(information *MySqlInformation)
+
+func NewMySql(opts ...Option) *MySqlInformation {
+	information := &MySqlInformation{
+		Ip:       "localhost",
+		Port:     "3306",
+		User:     "root",
+		Password: "123456",
+		DBName:   "gin",
+	}
+
+	for _, opt := range opts {
+		if opt != nil {
+			opt(information)
+		}
+	}
+
+	return information
+}
+
+func createMySqlConnect(information *MySqlInformation) {
 	dsn := fmt.Sprintf("%v:%v@tcp(%v:%v)/%v?charset=utf8mb4&parseTime=True&loc=Local",
-		user, password, ip, port, dbname)
+		information.User, information.Password, information.Ip, information.Port, information.DBName)
 
 	fmt.Println("dsn : ", dsn)
 
 	db, err := gorm.Open(mysql.Open(dsn), &gorm.Config{Logger: dblog, PrepareStmt: true})
-	//db, err := gorm.Open(mysql.Open(dsn), &gorm.Config{Logger: dblog, PrepareStmt: true}) //启用PrepareStmt，SQL预编译，提高查询效率
 
 	sqlDB, _ := db.DB()
 	sqlDB.SetMaxOpenConns(100) //设置数据库连接池最大连接数
 	sqlDB.SetMaxIdleConns(20)  //连接池最大允许的空闲连接数，如果没有sql任务需要执行的连接数大于20，超过的连接会被连接池关闭。
-	util.LogRus.Infof("connect to mysql db %s", dbname)
+	util.LogRus.Infof("connect to mysql db %s", information.DBName)
 
 	DB = db
 	Err = err
