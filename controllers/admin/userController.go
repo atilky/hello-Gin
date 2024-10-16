@@ -3,6 +3,7 @@ package admin
 import (
 	"fmt"
 	"gindemo02/models"
+	"gindemo02/util"
 	"net/http"
 	"strconv"
 
@@ -16,12 +17,6 @@ type User struct {
 
 type UserConrterller struct {
 	BaseController
-}
-
-func (u UserConrterller) Add(c *gin.Context) {
-	var user User
-	c.BindJSON(&user)
-	c.JSON(200, user)
 }
 
 func (u UserConrterller) Edit(c *gin.Context) {
@@ -80,11 +75,64 @@ func (u UserConrterller) Index(c *gin.Context) {
 
 }
 
+func (u UserConrterller) Add(c *gin.Context) {
+	name := c.Query("name")
+	pass := c.Query("pass")
+	age := c.Query("age")
+	ageInt, _ := strconv.Atoi(age)
+	email := c.Query("email")
+
+	userModel := models.User{}
+	userModel.CreateUser(models.User{
+		Name:     name,
+		Password: util.Md5(pass),
+		Age:      ageInt,
+		Email:    email,
+	})
+
+	c.JSON(http.StatusOK, gin.H{
+		"code":   200,
+		"result": nil,
+	})
+}
+
+func (u UserConrterller) GetUsers(c *gin.Context) {
+
+	age := c.Query("age")
+	ageInt, _ := strconv.Atoi(age)
+
+	user := models.User{}
+	user.Age = ageInt
+	users, _ := user.GetUsers()
+
+	c.JSON(http.StatusOK, gin.H{
+		"code":   200,
+		"result": users,
+	})
+
+}
+
+func (u UserConrterller) Delete(c *gin.Context) {
+
+	id := c.Query("Id")
+	idInt, _ := strconv.Atoi(id)
+
+	user := models.User{}
+	err := user.DeleteUserById(idInt)
+	if err != nil {
+		u.Error(c, 400, "delete failed")
+		return
+	}
+
+	u.Success(c, "delete success")
+
+}
+
 func (u UserConrterller) AddV2(c *gin.Context) {
 
 	users := []models.User{
-		{Username: "russ", Age: 38, Email: "s2@test.com", AddTime: models.GetNowTimeUnix()},
-		{Username: "colin", Age: 28, Email: "s3@test.com", AddTime: models.GetNowTimeUnix()},
+		{Name: "russ", Age: 38, Email: "s2@test.com", AddTime: models.GetNowTimeUnix()},
+		{Name: "colin", Age: 28, Email: "s3@test.com", AddTime: models.GetNowTimeUnix()},
 	}
 
 	result := models.DB.Create(users)

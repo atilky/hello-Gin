@@ -26,7 +26,9 @@ func AdminRouterInit(r *gin.Engine) {
 		adminRouter.PUT("/edit", admin.UserConrterller{}.Edit)
 		adminRouter.GET("/infov2", admin.UserConrterller{}.Info)
 		adminRouter.GET("/index", admin.UserConrterller{}.Index)
+		adminRouter.GET("/getUsers", admin.UserConrterller{}.GetUsers)
 		adminRouter.POST("/addV2", admin.UserConrterller{}.AddV2)
+		adminRouter.DELETE("/delete", admin.UserConrterller{}.Delete)
 
 		adminRouter.GET("/info", func(c *gin.Context) {
 			account := c.Query("account")
