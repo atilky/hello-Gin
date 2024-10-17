@@ -72,6 +72,7 @@ func main() {
 	routers.ApiRouterInit(r)
 	routers.RestfulDemo(r)
 	routers.HealthCheck(r)
+	routers.BlogRouterInit(r)
 
 	r.Run(":81")
 
