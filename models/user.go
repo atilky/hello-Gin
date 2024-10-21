@@ -4,6 +4,7 @@ import "gindemo02/util"
 
 type User struct {
 	ID       int    `gorm:"column:id;primaryKey"`
+	Account  string `json:"account"`
 	Password string `json:"password"`
 	Name     string `json:"name"`
 	Age      int    `json:"age"`
@@ -13,6 +14,18 @@ type User struct {
 
 func (u User) TableName() string {
 	return "user"
+}
+
+func (u User) GetUsersByAccAndPwd(account, pwd string) (users User, err error) {
+	err = DB.Select("*").
+		Where("account = ?", account).Where("password = ?", pwd).
+		First(&users).Error
+
+	if err != nil {
+		return users, err
+	}
+
+	return users, nil
 }
 
 func (u User) GetUsers() (users []User, err error) {
@@ -25,7 +38,6 @@ func (u User) GetUsers() (users []User, err error) {
 	}
 
 	return users, nil
-
 }
 
 // 创建一个用户

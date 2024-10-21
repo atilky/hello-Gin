@@ -27,14 +27,6 @@ func main() {
 	Init()
 
 	r := gin.Default()
-	// r.GET("/",
-	// 	func(c *gin.Context) {
-	// 		fmt.Println("Hello middleware")
-	// 	},
-	// 	func(c *gin.Context) {
-	// 		c.String(200, "gin 首頁")
-	// 	},
-	// )
 
 	r.GET("/",
 		middleware,
@@ -46,24 +38,8 @@ func main() {
 
 	// set session
 	// setSession(r)
-
 	// set session by redis
-	setSessionByRedis(r)
-
-	// 演示 gopkg.in/ini.v1
-	// config, err := ini.Load("./conf/app.ini")
-	// if err != nil {
-	// 	fmt.Println("fail to read file: %v", err)
-	// 	os.Exit(1)
-	// }
-
-	// get ini value
-	// fmt.Println("app_name:", config.Section("").Key("app_name").String())
-	// fmt.Println("app_mode:", config.Section("mysql").Key("password").String())
-
-	// set ini value
-	// config.Section("").Key("app_name").SetValue("production")
-	// config.SaveTo("./conf/app.ini")
+	//setSessionByRedis(r)
 
 	rootPath := util.ProjectRootPath
 	r.Static("/static", rootPath+"/conf")
@@ -73,6 +49,7 @@ func main() {
 	routers.RestfulDemo(r)
 	routers.HealthCheck(r)
 	routers.BlogRouterInit(r)
+	routers.LoginRouterInit(r)
 
 	r.Run(":81")
 
@@ -81,6 +58,7 @@ func main() {
 func Init() {
 	util.InitLog("log")
 	models.InitMySql()
+	models.InitRedis()
 }
 
 func setSession(r *gin.Engine) {
