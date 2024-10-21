@@ -6,3 +6,8 @@ type UpdateRequest struct {
 	Title   string `form:"Title" binding:"gt=0"`   //字符串长度大于0
 	Article string `form:"Article" binding:"gt=0"` //字符串长度大于0
 }
+
+type ReqGetAccount struct {
+	Account  string `form:"Account"`  //帳號
+	Password string `form:"Password"` //密碼
+}
