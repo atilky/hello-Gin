@@ -18,8 +18,7 @@ var (
 // 从jwt里取出uid
 func GetUidFromJwt(jwt string) int {
 
-	jwtKey := "jwt"
-
+	jwtKey := util.ConfigMap["key"]["jwtKey"]
 	_, payload, err := util.VerifyJwt(jwt, jwtKey)
 	if err != nil {
 		return 0

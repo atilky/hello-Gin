@@ -6,6 +6,7 @@ import (
 	"gindemo02/models"
 	"gindemo02/util"
 	"github.com/gin-gonic/gin"
+	"github.com/go-redis/redis"
 	"net/http"
 	"strconv"
 	"time"
@@ -14,7 +15,6 @@ import (
 const (
 	TOKEN_PREFIX = "dual_token_"
 	TOKEN_EXPIRE = 7 * 24 * time.Hour //一次登录7天有效
-	UID_IN_TOKEN = "uid"
 )
 
 type LoginResponse struct {
@@ -55,7 +55,8 @@ func (this LoginController) Login(ctx *gin.Context) {
 		Expiration:  time.Now().Add(TOKEN_EXPIRE).Add(24 * time.Hour).Unix(), //(7+1)天后过期，需要重新登录，假设24小时内用户肯定要重启浏览器
 		UserDefined: map[string]any{middleware.UID_IN_TOKEN: user.ID},        //用户自定义字段。如果token里包含敏感信息，请结合https使用
 	}
-	if token, _ := util.GenJWT(header, payload, "jwtKey"); err != nil {
+	jwtKey := util.ConfigMap["key"]["jwtKey"]
+	if token, _ := util.GenJWT(header, payload, jwtKey); err != nil {
 		util.LogRus.Errorf("生成token失败: %s", err)
 		ctx.JSON(http.StatusInternalServerError, LoginResponse{5, "token生成失败", 0, ""})
 		return
@@ -75,9 +76,27 @@ func (this LoginController) Login(ctx *gin.Context) {
 	}
 }
 
+// get auth_token by refresh_token
+func (this LoginController) GetAuthToken(ctx *gin.Context) {
+	refreshToken := ctx.Query("refresh_token")
+	authToken := GetToken(refreshToken)
+	ctx.String(http.StatusOK, authToken)
+}
+
 // 把<refreshToken, authToken>写入redis
 func SetToken(refreshToken, authToken string) {
 	if err := models.REDIS.Set(TOKEN_PREFIX+refreshToken, authToken, TOKEN_EXPIRE).Err(); err != nil { //7天之后就拿不到authToken了
 		util.LogRus.Errorf("write token pair(%s, %s) to redis failed: %s", refreshToken, authToken, err)
 	}
+}
+
+// 根据refreshToken获取authToken
+func GetToken(refreshToken string) (authToken string) {
+	var err error
+	if authToken, err = models.REDIS.Get(TOKEN_PREFIX + refreshToken).Result(); err != nil {
+		if err != redis.Nil {
+			util.LogRus.Errorf("get auth token of refresh token %s failed: %s", refreshToken, err)
+		}
+	}
+	return
 }

@@ -2,6 +2,7 @@ package routers
 
 import (
 	"gindemo02/controllers/admin"
+	"gindemo02/controllers/middleware"
 
 	"github.com/gin-gonic/gin"
 )
@@ -29,7 +30,7 @@ func AdminRouterInit(r *gin.Engine) {
 		adminRouter.GET("/index", admin.UserConrterller{}.Index)
 		adminRouter.GET("/getUsers", admin.UserConrterller{}.GetUsers)
 		adminRouter.POST("/addV2", admin.UserConrterller{}.AddV2)
-		adminRouter.DELETE("/delete", admin.UserConrterller{}.Delete)
+		adminRouter.DELETE("/delete", middleware.Auth(), admin.UserConrterller{}.Delete)
 
 		adminRouter.GET("/info", func(c *gin.Context) {
 			account := c.Query("account")

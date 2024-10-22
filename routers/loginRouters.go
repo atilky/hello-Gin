@@ -8,5 +8,6 @@ import (
 func LoginRouterInit(g *gin.Engine) {
 
 	g.POST("/login", admin.LoginController{}.Login)
+	g.GET("/getauthtoken", admin.LoginController{}.GetAuthToken)
 
 }
